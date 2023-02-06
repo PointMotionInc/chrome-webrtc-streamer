@@ -35,7 +35,7 @@ port.onMessage.addListener(async (request) => {
       console.log('socket::error::', error);
     });
 
-    socket.on('connect', () => {
+    socket.once('connect', () => {
       console.log('connected::');
 
       // emit only when socket is available
