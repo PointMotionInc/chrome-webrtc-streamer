@@ -15,28 +15,24 @@ port.onMessage.addListener(async (request) => {
     const { streamId } = request.data;
     if (!streamId) return;
 
-    // const accessToken = window.localStorage.getItem('accessToken');
-    // if (!accessToken) return;
+    const accessToken = window.localStorage.getItem('accessToken');
+    if (!accessToken) return;
 
-    // const user: { id: string } = JSON.parse(
-    //   window.localStorage.getItem('user') || '{}'
-    // );
-    // console.log('accessToken::', accessToken);
-    // console.log('user::', user);
-
-    // socket = io('wss://services.dev.pointmotioncontrol.com/testing-videos', {
-    //   query: {
-    //     userId: user.id,
-    //     authToken: accessToken,
-    //   },
-    // });
+    const user: { id: string } = JSON.parse(
+      window.localStorage.getItem('user') || '{}'
+    );
+    console.log('accessToken::', accessToken);
+    console.log('user::', user);
 
     socket = io('wss://services.dev.pointmotioncontrol.com/testing-videos', {
       query: {
-        userId: 'fee793cc-c85c-4bee-bac6-862ea3e1109d',
-        authToken:
-          'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6ImZlZTc5M2NjLWM4NWMtNGJlZS1iYWM2LTg2MmVhM2UxMTA5ZCIsImlhdCI6MTY3NTE0ODY4OSwiZXhwIjoxNjc3NzQwNjg5LCJodHRwczovL2hhc3VyYS5pby9qd3QvY2xhaW1zIjp7IngtaGFzdXJhLWFsbG93ZWQtcm9sZXMiOlsicGF0aWVudCJdLCJ4LWhhc3VyYS1kZWZhdWx0LXJvbGUiOiJwYXRpZW50IiwieC1oYXN1cmEtdXNlci1pZCI6ImZlZTc5M2NjLWM4NWMtNGJlZS1iYWM2LTg2MmVhM2UxMTA5ZCIsIngtaGFzdXJhLW9yZ2FuaXphdGlvbi1pZCI6IjAwMDAwMDAwLTAwMDAtMDAwMC0wMDAwLTAwMDAwMDAwMDAwMCJ9fQ.xymt-wVpjmO0sNQ-DK-W9uMt5A_Q1CYRFpAGgUp6moQ',
+        userId: user.id,
+        authToken: accessToken,
       },
+    });
+
+    socket.io.on('error', (error) => {
+      console.log('socket::error::', error);
     });
 
     socket.on('connect', () => {
