@@ -1,0 +1,45 @@
+{
+  "name": "Screen Rec Ext TS",
+  "description": "Screen recording",
+  "author": "Mohan",
+  "version": "1.0",
+  "manifest_version": 3,
+  "content_scripts": [
+    {
+      "matches": [
+        "*://localhost/*",
+        "*://*.patient.dev.pointmotioncontrol.com/*",
+        "*://*.youtube.com/*"
+      ],
+      "js": ["content.js"],
+      "all_frames": true,
+      "run_at": "document_end"
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "action": {
+    "default_title": "Point Motion",
+    "default_popup": "popup/popup.html"
+  },
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage",
+    "downloads",
+    "tabs",
+    "system.display",
+    "desktopCapture",
+    "offscreen",
+    "webNavigation",
+    "system.display",
+    "system.storage",
+    "system.cpu",
+    "system.memory"
+  ],
+  "host_permissions": ["http://*/*", "https://*/*"],
+  "externally_connectable": {
+    "matches": ["*://*.patient.dev.pointmotioncontrol.com/*", "*://localhost/*"]
+  }
+}
