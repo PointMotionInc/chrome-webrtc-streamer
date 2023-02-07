@@ -1,3 +1,19 @@
+// when the extension is reloaded it will inject automatically without the need to refresh the page
+chrome.tabs.query({}).then((tabs) => {
+  tabs.forEach((tab) => {
+    const regex = /https:\/\/[a-z]+.[a-z]+.pointmotioncontrol.com\/[a-z]*/;
+    if (regex.test(tab.url || '')) {
+      chrome.scripting.executeScript({
+        target: {
+          //@ts-ignore
+          tabId: tab.id,
+        },
+        files: ['content.js'],
+      });
+    }
+  });
+});
+
 async function getCurrentTab() {
   const queryOptions = { active: true, lastFocusedWindow: true };
   // `tab` will either be a `tabs.Tab` instance or `undefined`.
@@ -77,7 +93,6 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     const deviceInfo = await getDeviceInfo();
     console.log('device::info::', deviceInfo);
   }
-
 });
 
 const getStorageCapacity = (

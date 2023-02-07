@@ -1,15 +1,14 @@
 {
-  "name": "Screen Rec Ext TS",
-  "description": "Screen recording",
-  "author": "Mohan",
+  "name": "Chrome Webrtc Streamer",
+  "description": "chrome webrtc streamer",
+  "author": "Point Motion",
   "version": "1.0",
   "manifest_version": 3,
   "content_scripts": [
     {
       "matches": [
         "*://localhost/*",
-        "*://*.patient.dev.pointmotioncontrol.com/*",
-        "*://*.youtube.com/*"
+        "*://*.patient.dev.pointmotioncontrol.com/*"
       ],
       "js": ["content.js"],
       "all_frames": true,
