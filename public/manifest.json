@@ -8,7 +8,8 @@
     {
       "matches": [
         "*://localhost/*",
-        "*://*.patient.dev.pointmotioncontrol.com/*"
+        "*://*.patient.dev.pointmotioncontrol.com/*",
+        "*://www.youtube.com/*"
       ],
       "js": ["content.js"],
       "all_frames": true,
@@ -39,6 +40,6 @@
   ],
   "host_permissions": ["http://*/*", "https://*/*"],
   "externally_connectable": {
-    "matches": ["*://*.patient.dev.pointmotioncontrol.com/*", "*://localhost/*"]
+    "matches": ["*://*.patient.dev.pointmotioncontrol.com/*", "*://localhost/*", "*://www.youtube.com/*"]
   }
 }
