@@ -1,9 +1,12 @@
 import { GraphQLClient } from 'graphql-request';
-import axios from 'axios';
+import { Upload } from "@aws-sdk/lib-storage";
+import { S3 } from "@aws-sdk/client-s3";
 
 let mediaRecorder: MediaRecorder | undefined;
 let blob: Blob | undefined;
-let uploadUrl: string;
+let stsCreds: any;
+let s3FilePath: string;
+let s3Bucket: string;
 
 // TODO: get GQL url from env variables.
 let gqlClient = new GraphQLClient('https://api.dev.pointmotioncontrol.com/v1/graphql');
@@ -22,20 +25,33 @@ port.onMessage.addListener(async (request) => {
     // make gql req to get uploadUrl each time 'Start' is clicked.
     gqlClient.setHeader('Authorization', `Bearer ${accessToken}`);
 
-    const query = `query UploadTestingVideo {
-      uploadTestingVideoUrl {
+    const query = `query UploadTestingVideoSts {
+      uploadTestingVideoSts {
         data {
-          uploadUrl
+          credentials {
+            accessKeyId: AccessKeyId
+            secretAccessKey: SecretAccessKey
+            sessionToken: SessionToken
+          }
+          file
+          bucket
         }
       }
     }`
 
     try {
       const resp = await gqlClient.request(query);
-      uploadUrl = resp.uploadTestingVideoUrl.data.uploadUrl;
-      console.log('uploadUrl:: ', uploadUrl);
+      stsCreds = resp.uploadTestingVideoSts.data.credentials;
+      console.log('stsCreds:: ', stsCreds);
+
+      s3FilePath = resp.uploadTestingVideoSts.data.file;
+      console.log('s3FilePath:: ', s3FilePath);
+
+      s3Bucket = resp.uploadTestingVideoSts.data.bucket;
+      console.log('s3Bucket:: ', s3Bucket);
+
     } catch (err) {
-      console.error('upload url api failed::', err);
+      console.error('sts api failed ::', err);
     }
 
     const streamOpts: any = {
@@ -114,12 +130,27 @@ async function saveFile(recordedChunks: BlobPart[], mimeType: string) {
   });
 
   try {
-    await axios.put(uploadUrl, blob, {
-      headers: {
-        'Content-Type': mimeType
+    const s3Client = new S3({
+      credentials: { ...stsCreds },
+      region: 'us-east-1'
+    })
+
+    const parallelUploads3 = new Upload({
+      client: s3Client,
+      params: {
+        Bucket: s3Bucket,
+        Key: s3FilePath,
+        Body: blob
       }
     })
-    console.log('file uploaded to s3');
+
+    parallelUploads3.on('httpUploadProgress', (progress) => {
+      // NOTE: can use 'progress' data to show a progress bar.
+      console.log('upload progress::', progress);
+    })
+
+    await parallelUploads3.done();
+    console.log('file uploaded to S3 success');
   } catch (err) {
     console.error('uploading to S3 failed:: ', err);
   }
