@@ -59,6 +59,8 @@ chrome.runtime.onConnect.addListener((port) => {
 chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   if (message.event === 'start-recording') {
     const tab = await getCurrentTab();
+    const deviceInfo = await getDeviceInfo();
+    console.log('device::info::', deviceInfo);
 
     chrome.desktopCapture.chooseDesktopMedia(
       ['screen', 'audio', 'window', 'tab'],
@@ -73,6 +75,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
               event: 'start',
               data: {
                 streamId,
+                deviceInfo,
               },
             });
           }

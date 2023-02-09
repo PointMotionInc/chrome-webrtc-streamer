@@ -5,8 +5,9 @@ import { S3 } from "@aws-sdk/client-s3";
 let mediaRecorder: MediaRecorder | undefined;
 let blob: Blob | undefined;
 let stsCreds: any;
-let s3FilePath: string;
+let s3Folder: string;
 let s3Bucket: string;
+let sysDeviceInfo: Partial<DeviceInfo> = {};
 
 // TODO: get GQL url from env variables.
 let gqlClient = new GraphQLClient('https://api.dev.pointmotioncontrol.com/v1/graphql');
@@ -14,15 +15,19 @@ let gqlClient = new GraphQLClient('https://api.dev.pointmotioncontrol.com/v1/gra
 const port = chrome.runtime.connect({});
 port.onMessage.addListener(async (request) => {
   if (request.event === 'start') {
-    const { streamId } = request.data;
+    const { streamId, deviceInfo } = request.data;
     if (!streamId) return;
 
     const accessToken = window.localStorage.getItem('accessToken');
     if (!accessToken) return;
 
-    console.log('accessToken::', accessToken);
+    if (deviceInfo) {
+      sysDeviceInfo = deviceInfo;
+    } else {
+      console.error('could not read system device information!');
+    }
 
-    // make gql req to get uploadUrl each time 'Start' is clicked.
+    console.log('accessToken::', accessToken);
     gqlClient.setHeader('Authorization', `Bearer ${accessToken}`);
 
     const query = `query UploadTestingVideoSts {
@@ -33,7 +38,7 @@ port.onMessage.addListener(async (request) => {
             secretAccessKey: SecretAccessKey
             sessionToken: SessionToken
           }
-          file
+          folder
           bucket
         }
       }
@@ -43,13 +48,10 @@ port.onMessage.addListener(async (request) => {
       const resp = await gqlClient.request(query);
       stsCreds = resp.uploadTestingVideoSts.data.credentials;
       console.log('stsCreds:: ', stsCreds);
-
-      s3FilePath = resp.uploadTestingVideoSts.data.file;
-      console.log('s3FilePath:: ', s3FilePath);
-
+      s3Folder = resp.uploadTestingVideoSts.data.folder;
+      console.log('s3Folder:: ', s3Folder);
       s3Bucket = resp.uploadTestingVideoSts.data.bucket;
       console.log('s3Bucket:: ', s3Bucket);
-
     } catch (err) {
       console.error('sts api failed ::', err);
     }
@@ -133,21 +135,39 @@ async function saveFile(recordedChunks: BlobPart[], mimeType: string) {
     const s3Client = new S3({
       credentials: { ...stsCreds },
       region: 'us-east-1'
-    })
+    });
+
+    // uploading system config file
+    const str = JSON.stringify(sysDeviceInfo);
+    const bytes = new TextEncoder().encode(str);
+    const sysInfoFileBlob = new Blob([bytes], {
+      type: "application/json;charset=utf-8"
+    });
+    const uploadSystemConfig = new Upload({
+      client: s3Client,
+      params: {
+        Bucket: s3Bucket,
+        Key: `${s3Folder}/config.json`,
+        Body: sysInfoFileBlob,
+        ContentType: 'application/json; charset=utf-8',
+      }
+    });
+    await uploadSystemConfig.done();
+    console.log('config file uploaded success');
 
     const parallelUploads3 = new Upload({
       client: s3Client,
       params: {
         Bucket: s3Bucket,
-        Key: s3FilePath,
+        Key: `${s3Folder}/video.mp4`,
         Body: blob
       }
-    })
+    });
 
     parallelUploads3.on('httpUploadProgress', (progress) => {
       // NOTE: can use 'progress' data to show a progress bar.
       console.log('upload progress::', progress);
-    })
+    });
 
     await parallelUploads3.done();
     console.log('file uploaded to S3 success');
