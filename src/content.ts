@@ -9,6 +9,11 @@ let s3Folder: string;
 let s3Bucket: string;
 let sysDeviceInfo: Partial<DeviceInfo> = {};
 
+if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+  console.log('dark color scheme detected... changing icon to white');
+  chrome.runtime.sendMessage({schema: 'dark'});
+}
+
 // TODO: get GQL url from env variables.
 let gqlClient = new GraphQLClient('https://api.dev.pointmotioncontrol.com/v1/graphql');
 

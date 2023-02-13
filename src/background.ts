@@ -14,6 +14,18 @@ chrome.tabs.query({}).then((tabs) => {
   });
 });
 
+chrome.runtime.onMessage.addListener(request => {
+  if (request.schema === 'dark') {
+    chrome.action.setIcon({
+      path: {
+        "16": "assets/white/sh_16.png",
+        "48": "assets/white/sh_48.png",
+        "128": "assets/white/sh_128.png"
+      }
+    })
+  }
+})
+
 async function getCurrentTab() {
   const queryOptions = { active: true, lastFocusedWindow: true };
   // `tab` will either be a `tabs.Tab` instance or `undefined`.

@@ -43,8 +43,8 @@
     "matches": ["*://*.patient.dev.pointmotioncontrol.com/*", "*://localhost/*", "*://www.youtube.com/*"]
   },
   "icons": {
-    "16": "assets/white/sh_16.png",
-    "48": "assets/white/sh_48.png",
-    "128": "assets/white/sh_128.png"
+    "16": "assets/dark/sh_16.png",
+    "48": "assets/dark/sh_48.png",
+    "128": "assets/dark/sh_128.png"
   }
 }
