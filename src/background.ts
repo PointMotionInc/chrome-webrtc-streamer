@@ -15,7 +15,15 @@ chrome.tabs.query({}).then((tabs) => {
 });
 
 chrome.runtime.onMessage.addListener(request => {
-  if (request.schema === 'dark') {
+  if (request.icon === 'dark') {
+    chrome.action.setIcon({
+      path: {
+        "16": "assets/dark/sh_16.png",
+        "48": "assets/dark/sh_48.png",
+        "128": "assets/dark/sh_128.png"
+      }
+    })
+  } else if (request.icon === 'light') {
     chrome.action.setIcon({
       path: {
         "16": "assets/white/sh_16.png",
