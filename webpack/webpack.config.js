@@ -31,7 +31,7 @@ module.exports = {
       patterns: [{ from: '.', to: '.', context: 'public' }],
     }),
   ],
-  watch: true,
+  watch: false,
   watchOptions: {
     ignored: [
       path.resolve(__dirname, '..', 'dist'),
