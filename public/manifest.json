@@ -1,8 +1,8 @@
 {
-  "name": "Chrome Webrtc Streamer",
-  "description": "chrome webrtc streamer",
+  "name": "Pointmotion Recorder Assist",
+  "description": "Pointmotion Recorder Assist to be used to upload your SoundHealth testing videos.",
   "author": "Point Motion",
-  "version": "1.0",
+  "version": "0.0.1",
   "manifest_version": 3,
   "content_scripts": [
     {
@@ -41,5 +41,10 @@
   "host_permissions": ["http://*/*", "https://*/*"],
   "externally_connectable": {
     "matches": ["*://*.patient.dev.pointmotioncontrol.com/*", "*://localhost/*", "*://www.youtube.com/*"]
+  },
+  "icons": {
+    "16": "assets/white/sh_16.png",
+    "48": "assets/white/sh_48.png",
+    "128": "assets/white/sh_128.png"
   }
 }
