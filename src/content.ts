@@ -9,12 +9,13 @@ let s3Folder: string;
 let s3Bucket: string;
 let sysDeviceInfo: Partial<DeviceInfo> = {};
 
-if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+const darkModePreference = window.matchMedia("(prefers-color-scheme: dark)");
+
+if (darkModePreference.matches) {
   console.log('change icon to light');
-  chrome.runtime.sendMessage({icon: 'light'});
+  chrome.runtime.sendMessage({ icon: 'light' });
 }
 
-const darkModePreference = window.matchMedia("(prefers-color-scheme: dark)");
 darkModePreference.addEventListener("change", event => {
   if (event.matches) {
     console.log('change icon to light');
