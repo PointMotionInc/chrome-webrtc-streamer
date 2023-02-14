@@ -1,0 +1,38 @@
+name: Publish Extension
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push events.
+  push:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      # Uncomment this if you want to debug Github action using SSH.
+      # - name: Setup upterm session
+      #   uses: lhotari/action-upterm@v1
+
+      - name: Build Deployable App
+        run: |
+         npm ci --ignore-scripts
+         npm run build
+
+         echo "Listing files..."
+         ls -la
+
+         cd dist
+         zip ../build.zip *
+         cd ..
+         echo "Listing created zip file..."
+         unzip -l build.zip
+
+      - name: Publish to Chrome Webstore
+        run: |
+          echo "test"
