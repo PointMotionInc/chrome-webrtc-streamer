@@ -1,6 +1,6 @@
 {
-  "name": "Pointmotion Recorder Assist",
-  "description": "Pointmotion Recorder Assist to be used to upload your SoundHealth testing videos.",
+  "name": "Sound Health Video Recorder",
+  "description": "Sound Health Video Recorder to be used to upload your Sound Health testing videos.",
   "author": "Point Motion",
   "version": "0.0.1",
   "manifest_version": 3,
@@ -8,8 +8,7 @@
     {
       "matches": [
         "*://localhost/*",
-        "*://*.patient.dev.pointmotioncontrol.com/*",
-        "*://www.youtube.com/*"
+        "*://*.patient.dev.pointmotioncontrol.com/*"
       ],
       "js": ["content.js"],
       "all_frames": true,
@@ -24,15 +23,10 @@
     "default_popup": "popup/popup.html"
   },
   "permissions": [
-    "activeTab",
-    "scripting",
-    "storage",
-    "downloads",
     "tabs",
-    "system.display",
+    "scripting",
+    "downloads",
     "desktopCapture",
-    "offscreen",
-    "webNavigation",
     "system.display",
     "system.storage",
     "system.cpu",
@@ -40,7 +34,7 @@
   ],
   "host_permissions": ["http://*/*", "https://*/*"],
   "externally_connectable": {
-    "matches": ["*://*.patient.dev.pointmotioncontrol.com/*", "*://localhost/*", "*://www.youtube.com/*"]
+    "matches": ["*://*.patient.dev.pointmotioncontrol.com/*", "*://localhost/*"]
   },
   "icons": {
     "16": "assets/dark/sh_16.png",
