@@ -1,6 +1,6 @@
 {
   "name": "Sound Health Video Recorder",
-  "description": "Sound Health Video Recorder to be used to upload your Sound Health testing videos.",
+  "description": "Send your session video to Point Motion team directly.",
   "author": "Point Motion",
   "version": "0.0.1",
   "manifest_version": 3,
