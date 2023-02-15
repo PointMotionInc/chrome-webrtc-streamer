@@ -26,7 +26,7 @@ darkModePreference.addEventListener("change", event => {
   }
 });
 
-// TODO: get GQL url from env variables.
+// TODO: make URL change acc to the tab it runs on.
 let gqlClient = new GraphQLClient('https://api.dev.pointmotioncontrol.com/v1/graphql');
 
 const port = chrome.runtime.connect({});

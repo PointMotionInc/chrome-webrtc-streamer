@@ -1,6 +1,7 @@
 // when the extension is reloaded it will inject automatically without the need to refresh the page
 chrome.tabs.query({}).then((tabs) => {
   tabs.forEach((tab) => {
+    // TODO: add pointmotion.us
     const regex = /https:\/\/[a-z]+.[a-z]+.pointmotioncontrol.com\/[a-z]*/;
     if (regex.test(tab.url || '')) {
       chrome.scripting.executeScript({
