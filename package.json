@@ -4,7 +4,8 @@
   "main": "index.js",
   "scripts": {
     "build": "webpack --config webpack/webpack.config.js",
-    "dev": "webpack --config webpack/webpack.config.js --watch --progress"
+    "dev": "webpack --config webpack/webpack.config.js --watch --progress",
+    "build-zip": "npm run build; cd dist; zip ../build.zip *; cd .."
   },
   "keywords": [],
   "author": "",

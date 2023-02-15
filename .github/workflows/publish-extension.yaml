@@ -22,17 +22,17 @@ jobs:
       - name: Build Deployable App
         run: |
          npm ci --ignore-scripts
-         npm run build
+         npm run build-zip
 
          echo "Listing files..."
          ls -la
 
-         cd dist
-         zip ../build.zip *
-         cd ..
-         echo "Listing created zip file..."
-         unzip -l build.zip
-
-      - name: Publish to Chrome Webstore
-        run: |
-          echo "test"
+      # - name: Chrome Extension upload & publish
+      #   uses: Passiverecords/chrome-extension-upload-action@1.4.1
+      #   with:
+      #     refresh-token: ${{ secrets.REFRESH_TOKEN }}
+      #     client-id: ${{ secrets.CLIENT_ID }}
+      #     client-secret: ${{ secrets.CLIENT_SECRET }}
+      #     file-name: './build.zip'
+      #     app-id: 'xyz' # get app id from Web Store once extension is published
+      #     publish: true
