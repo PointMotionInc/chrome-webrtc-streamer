@@ -11,6 +11,7 @@ let sysDeviceInfo: Partial<DeviceInfo> = {};
 let downloadLocally = false;
 
 let status: Status = 'no-token';
+let recordingEndedAt: Date;
 
 const darkModePreference = window.matchMedia('(prefers-color-scheme: dark)');
 if (darkModePreference.matches) {
@@ -142,12 +143,13 @@ port.onMessage.addListener(async (message: Message) => {
       mediaRecorder.stream.getTracks().forEach((track) => {
         track.stop();
       });
+      recordingEndedAt = new Date();
     }
   }
 
   if (message.event === 'upload-recording') {
     if (blob) {
-      uploadFile(blob);
+      uploadFile(blob, recordingEndedAt);
     }
     status = 'uploading';
     sendMessage('popup', 'status', { status });
@@ -194,16 +196,16 @@ function createRecorder(stream: MediaStream, mimeType: string) {
   return mediaRecorder;
 }
 
-async function insertUploadKeys(videoKey: string, configKey: string) {
-  const query = `mutation InsertUploadKeys($videoKey: String!, $configKey: String!) {
-    insert_tester_videos_one(object: {videoKey: $videoKey, configKey: $configKey}) {
+async function insertUploadKeys(videoKey: string, configKey: string, endedAt: Date) {
+  const query = `mutation InsertUploadKeys($videoKey: String!, $configKey: String!, $endedAt: timestamptz!) {
+    insert_tester_videos_one(object: {videoKey: $videoKey, configKey: $configKey, endedAt: $endedAt}) {
       id
     }
   }`;
-  await gqlClient.request(query, { videoKey, configKey });
+  await gqlClient.request(query, { videoKey, configKey, endedAt: endedAt.toISOString() });
 }
 
-async function uploadFile(blob: Blob) {
+async function uploadFile(blob: Blob, recordingEndedAt: Date) {
   try {
     const s3Client = new S3({
       credentials: { ...stsCreds },
@@ -256,7 +258,7 @@ async function uploadFile(blob: Blob) {
     });
 
     await parallelUploads3.done();
-    await insertUploadKeys(videoKey, configKey);
+    await insertUploadKeys(videoKey, configKey, recordingEndedAt);
 
     // removing blob when download is complete
     if (blob) {
