@@ -73,8 +73,8 @@ const content: { [key in Status]: string } = {
           </div>
         </div>
       </div>
-      <hr class="mt-3 d-none">
-      <div class="col-12 flex-center mt-1 mb-1 d-none">
+      <hr class="mt-3">
+      <div class="col-12 flex-center mt-1 mb-1">
         <button id='stop-uploading' class="btn btn-outline-danger custom-btn">Stop Uploading</button>
       </div>`,
 
@@ -129,6 +129,11 @@ const updateHtml = (status: Status) => {
     });
     deleteBtn.addEventListener('click', () => {
       sendMessage('content', 'delete-recording');
+    });
+  } else {
+    const stopUploading = document.getElementById('stop-uploading')!;
+    stopUploading.addEventListener('click', () => {
+      sendMessage('content', 'stop-uploading');
     });
   }
 };

@@ -137,8 +137,8 @@ port.onMessage.addListener(async (message: Message) => {
   if (message.event === 'stop-recording') {
     console.log('event::stop-recording::', message);
     if (mediaRecorder) {
-      if (message.data && message.data.download) {
-        downloadLocally = true;
+      if (message.data) {
+        downloadLocally = message.data.download;
       }
 
       mediaRecorder.stop();
@@ -163,6 +163,17 @@ port.onMessage.addListener(async (message: Message) => {
     }
     status = 'ready';
     sendMessage('popup', 'status', { status });
+  }
+
+  if (message.event === 'stop-uploading') {
+    try {
+      await stopUploading();
+
+      status = 'ready';
+      sendMessage('popup', 'status', { status });
+    } catch (err) {
+      console.error('stop uploading failed::', err);
+    }
   }
 });
 
@@ -198,13 +209,21 @@ function createRecorder(stream: MediaStream, mimeType: string) {
   return mediaRecorder;
 }
 
-async function insertUploadKeys(videoKey: string, configKey: string, endedAt: Date) {
+async function insertUploadKeys(
+  videoKey: string,
+  configKey: string,
+  endedAt: Date
+) {
   const query = `mutation InsertUploadKeys($videoKey: String!, $configKey: String!, $endedAt: timestamptz!) {
     insert_tester_videos_one(object: {videoKey: $videoKey, configKey: $configKey, endedAt: $endedAt}) {
       id
     }
   }`;
-  await gqlClient.request(query, { videoKey, configKey, endedAt: endedAt.toISOString() });
+  await gqlClient.request(query, {
+    videoKey,
+    configKey,
+    endedAt: endedAt.toISOString(),
+  });
 }
 
 async function stopUploading() {
@@ -230,7 +249,7 @@ async function uploadFile(blob: Blob, recordingEndedAt: Date) {
       type: 'application/json;charset=utf-8',
     });
     const configKey = `${s3Folder}/config.json`;
-    configUploadObj= new Upload({
+    configUploadObj = new Upload({
       client: s3Client,
       params: {
         Bucket: s3Bucket,
