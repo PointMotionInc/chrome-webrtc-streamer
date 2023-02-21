@@ -194,6 +194,15 @@ function createRecorder(stream: MediaStream, mimeType: string) {
   return mediaRecorder;
 }
 
+async function insertUploadKeys(videoKey: string, configKey: string) {
+  const query = `mutation InsertUploadKeys($videoKey: String!, $configKey: String!) {
+    insert_tester_videos_one(object: {videoKey: $videoKey, configKey: $configKey}) {
+      id
+    }
+  }`;
+  await gqlClient.request(query, { videoKey, configKey });
+}
+
 async function uploadFile(blob: Blob) {
   try {
     const s3Client = new S3({
@@ -207,11 +216,12 @@ async function uploadFile(blob: Blob) {
     const sysInfoFileBlob = new Blob([bytes], {
       type: 'application/json;charset=utf-8',
     });
+    const configKey = `${s3Folder}/config.json`;
     const uploadSystemConfig = new Upload({
       client: s3Client,
       params: {
         Bucket: s3Bucket,
-        Key: `${s3Folder}/config.json`,
+        Key: configKey,
         Body: sysInfoFileBlob,
         ContentType: 'application/json; charset=utf-8',
       },
@@ -219,11 +229,12 @@ async function uploadFile(blob: Blob) {
     await uploadSystemConfig.done();
     console.log('config file uploaded success');
 
+    const videoKey = `${s3Folder}/video.mp4`;
     const parallelUploads3 = new Upload({
       client: s3Client,
       params: {
         Bucket: s3Bucket,
-        Key: `${s3Folder}/video.mp4`,
+        Key: videoKey,
         Body: blob,
       },
     });
@@ -245,6 +256,7 @@ async function uploadFile(blob: Blob) {
     });
 
     await parallelUploads3.done();
+    await insertUploadKeys(videoKey, configKey);
 
     // removing blob when download is complete
     if (blob) {
