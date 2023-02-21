@@ -12,6 +12,8 @@ let downloadLocally = false;
 
 let status: Status = 'no-token';
 let recordingEndedAt: Date;
+let videoUploadObj: Upload;
+let configUploadObj: Upload;
 
 const darkModePreference = window.matchMedia('(prefers-color-scheme: dark)');
 if (darkModePreference.matches) {
@@ -205,6 +207,15 @@ async function insertUploadKeys(videoKey: string, configKey: string, endedAt: Da
   await gqlClient.request(query, { videoKey, configKey, endedAt: endedAt.toISOString() });
 }
 
+async function stopUploading() {
+  try {
+    videoUploadObj.abort();
+    configUploadObj.abort();
+  } catch (err) {
+    console.error('error while aborting S3 uploads:: ', err);
+  }
+}
+
 async function uploadFile(blob: Blob, recordingEndedAt: Date) {
   try {
     const s3Client = new S3({
@@ -219,7 +230,7 @@ async function uploadFile(blob: Blob, recordingEndedAt: Date) {
       type: 'application/json;charset=utf-8',
     });
     const configKey = `${s3Folder}/config.json`;
-    const uploadSystemConfig = new Upload({
+    configUploadObj= new Upload({
       client: s3Client,
       params: {
         Bucket: s3Bucket,
@@ -228,11 +239,11 @@ async function uploadFile(blob: Blob, recordingEndedAt: Date) {
         ContentType: 'application/json; charset=utf-8',
       },
     });
-    await uploadSystemConfig.done();
+    await configUploadObj.done();
     console.log('config file uploaded success');
 
     const videoKey = `${s3Folder}/video.mp4`;
-    const parallelUploads3 = new Upload({
+    videoUploadObj = new Upload({
       client: s3Client,
       params: {
         Bucket: s3Bucket,
@@ -241,7 +252,7 @@ async function uploadFile(blob: Blob, recordingEndedAt: Date) {
       },
     });
 
-    parallelUploads3.on('httpUploadProgress', (progress) => {
+    videoUploadObj.on('httpUploadProgress', (progress) => {
       // NOTE: can use 'progress' data to show a progress bar.
       console.log('upload progress::', progress);
 
@@ -257,7 +268,7 @@ async function uploadFile(blob: Blob, recordingEndedAt: Date) {
       }
     });
 
-    await parallelUploads3.done();
+    await videoUploadObj.done();
     await insertUploadKeys(videoKey, configKey, recordingEndedAt);
 
     // removing blob when download is complete
