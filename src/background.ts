@@ -85,7 +85,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   if (message.event === 'signin') {
     // TODO: open pointmotion.us (?)
     chrome.tabs.create({
-      url: 'https://patient.dev.pointmotioncontrol.com',
+      url: 'https://app.pointmotion.us',
       active: true,
     });
   }
