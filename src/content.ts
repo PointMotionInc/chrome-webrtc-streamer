@@ -1,6 +1,6 @@
 import { GraphQLClient } from 'graphql-request';
-import { Upload } from "@aws-sdk/lib-storage";
-import { S3 } from "@aws-sdk/client-s3";
+import { Upload } from '@aws-sdk/lib-storage';
+import { S3 } from '@aws-sdk/client-s3';
 
 let mediaRecorder: MediaRecorder | undefined;
 let blob: Blob | undefined;
@@ -8,43 +8,68 @@ let stsCreds: any;
 let s3Folder: string;
 let s3Bucket: string;
 let sysDeviceInfo: Partial<DeviceInfo> = {};
+let downloadLocally = false;
 
-const darkModePreference = window.matchMedia("(prefers-color-scheme: dark)");
+let status: Status = 'no-token';
 
+const darkModePreference = window.matchMedia('(prefers-color-scheme: dark)');
 if (darkModePreference.matches) {
   console.log('change icon to light');
   chrome.runtime.sendMessage({ icon: 'light' });
 }
-
-darkModePreference.addEventListener("change", event => {
+darkModePreference.addEventListener('change', (event) => {
   if (event.matches) {
-    console.log('change icon to light');
     chrome.runtime.sendMessage({ icon: 'light' });
   } else {
-    console.log('change icon to dark');
     chrome.runtime.sendMessage({ icon: 'dark' });
   }
 });
 
+const sendMessage = (
+  to: 'background' | 'content' | 'popup',
+  event: string,
+  data?: { [key: string]: any }
+) => {
+  if (port) {
+    port.postMessage({
+      to,
+      event,
+      data,
+    });
+  } else {
+    console.error('Port is undefined');
+  }
+};
+
 // TODO: make URL change acc to the tab it runs on.
-let gqlClient = new GraphQLClient('https://api.dev.pointmotioncontrol.com/v1/graphql');
+const gqlClient = new GraphQLClient(
+  'https://api.dev.pointmotioncontrol.com/v1/graphql'
+);
+
+const accessToken = window.localStorage.getItem('accessToken');
+if (accessToken) {
+  status = 'ready';
+}
 
 const port = chrome.runtime.connect({});
-port.onMessage.addListener(async (request) => {
-  if (request.event === 'start') {
-    const { streamId, deviceInfo } = request.data;
-    if (!streamId) return;
+port.onMessage.addListener(async (message: Message) => {
+  // don't have to listen if the message is not for content-script
+  if (message.to !== 'content') return;
 
-    const accessToken = window.localStorage.getItem('accessToken');
-    if (!accessToken) return;
+  if (message.event === 'status') {
+    sendMessage('popup', 'status', { status });
+  }
+
+  if (message.event === 'start-recording') {
+    const { streamId, deviceInfo } = message.data as any;
+    if (!streamId) return;
 
     if (deviceInfo) {
       sysDeviceInfo = deviceInfo;
     } else {
-      console.error('could not read system device information!');
+      console.error('Could not read system device information!');
     }
 
-    console.log('accessToken::', accessToken);
     gqlClient.setHeader('Authorization', `Bearer ${accessToken}`);
 
     const query = `query UploadTestingVideoSts {
@@ -59,16 +84,13 @@ port.onMessage.addListener(async (request) => {
           bucket
         }
       }
-    }`
+    }`;
 
     try {
       const resp = await gqlClient.request(query);
       stsCreds = resp.uploadTestingVideoSts.data.credentials;
-      console.log('stsCreds:: ', stsCreds);
       s3Folder = resp.uploadTestingVideoSts.data.folder;
-      console.log('s3Folder:: ', s3Folder);
       s3Bucket = resp.uploadTestingVideoSts.data.bucket;
-      console.log('s3Bucket:: ', s3Bucket);
     } catch (err) {
       console.error('sts api failed ::', err);
     }
@@ -91,7 +113,9 @@ port.onMessage.addListener(async (request) => {
     navigator.mediaDevices
       .getUserMedia(streamOpts)
       .then((stream) => {
-        console.log('stream::', stream);
+        status = 'recording';
+        sendMessage('popup', 'status', { status });
+
         mediaRecorder = createRecorder(stream, 'video/mp4');
 
         stream.getTracks().forEach((track) => {
@@ -103,12 +127,17 @@ port.onMessage.addListener(async (request) => {
         });
       })
       .catch((err) => {
-        console.log('err::', err);
+        console.log('Unable To Get User Media::', err);
       });
   }
 
-  if (request.event === 'stop') {
+  if (message.event === 'stop-recording') {
+    console.log('event::stop-recording::', message);
     if (mediaRecorder) {
+      if (message.data && message.data.download) {
+        downloadLocally = true;
+      }
+
       mediaRecorder.stop();
       mediaRecorder.stream.getTracks().forEach((track) => {
         track.stop();
@@ -116,10 +145,20 @@ port.onMessage.addListener(async (request) => {
     }
   }
 
-  if (request.event === 'clear-memory') {
+  if (message.event === 'upload-recording') {
+    if (blob) {
+      uploadFile(blob);
+    }
+    status = 'uploading';
+    sendMessage('popup', 'status', { status });
+  }
+
+  if (message.event === 'delete-recording') {
     if (blob) {
       URL.revokeObjectURL(blob as any);
     }
+    status = 'ready';
+    sendMessage('popup', 'status', { status });
   }
 });
 
@@ -135,30 +174,38 @@ function createRecorder(stream: MediaStream, mimeType: string) {
 
   mediaRecorder.onstop = () => {
     console.log('stopping:mediaRecording::');
-    saveFile(recordedChunks, mimeType);
+
+    blob = new Blob(recordedChunks, {
+      type: mimeType,
+    });
+
+    if (downloadLocally) {
+      sendMessage('background', 'download', {
+        url: URL.createObjectURL(blob),
+      });
+    }
     recordedChunks = [];
+
+    status = 'recording-complete';
+    sendMessage('popup', 'status', { status });
   };
 
   mediaRecorder.start(5000); // For every 'x'ms the stream data will be stored in a separate chunk.
   return mediaRecorder;
 }
 
-async function saveFile(recordedChunks: BlobPart[], mimeType: string) {
-  blob = new Blob(recordedChunks, {
-    type: mimeType,
-  });
-
+async function uploadFile(blob: Blob) {
   try {
     const s3Client = new S3({
       credentials: { ...stsCreds },
-      region: 'us-east-1'
+      region: 'us-east-1',
     });
 
     // uploading system config file
     const str = JSON.stringify(sysDeviceInfo);
     const bytes = new TextEncoder().encode(str);
     const sysInfoFileBlob = new Blob([bytes], {
-      type: "application/json;charset=utf-8"
+      type: 'application/json;charset=utf-8',
     });
     const uploadSystemConfig = new Upload({
       client: s3Client,
@@ -167,7 +214,7 @@ async function saveFile(recordedChunks: BlobPart[], mimeType: string) {
         Key: `${s3Folder}/config.json`,
         Body: sysInfoFileBlob,
         ContentType: 'application/json; charset=utf-8',
-      }
+      },
     });
     await uploadSystemConfig.done();
     console.log('config file uploaded success');
@@ -177,27 +224,39 @@ async function saveFile(recordedChunks: BlobPart[], mimeType: string) {
       params: {
         Bucket: s3Bucket,
         Key: `${s3Folder}/video.mp4`,
-        Body: blob
-      }
+        Body: blob,
+      },
     });
 
     parallelUploads3.on('httpUploadProgress', (progress) => {
       // NOTE: can use 'progress' data to show a progress bar.
       console.log('upload progress::', progress);
+
+      if (progress.loaded && progress.total) {
+        const progressPercent = Math.round(
+          (progress.loaded / progress.total) * 100
+        );
+
+        // send progress event
+        sendMessage('popup', 'uploading-progresss', {
+          progress: progressPercent,
+        });
+      }
     });
 
     await parallelUploads3.done();
+
+    // removing blob when download is complete
+    if (blob) {
+      URL.revokeObjectURL(blob as any);
+    }
+
+    status = 'uploading-complete';
+    sendMessage('popup', 'status', { status });
     console.log('file uploaded to S3 success');
   } catch (err) {
-    console.error('uploading to S3 failed:: ', err);
+    console.error('Uploading to S3 failed:: ', err);
   }
-
-  port.postMessage({
-    event: 'download',
-    data: {
-      url: URL.createObjectURL(blob),
-    },
-  });
 }
 
 console.log('Extension Script Injected.');

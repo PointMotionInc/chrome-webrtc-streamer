@@ -1,0 +1,235 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Open+Sans&display=swap');
+
+/* You can add global styles to this file, and also import other style files */
+@import '@webpixels/css/core/functions';
+
+:root {
+  --primary: #000066;
+  --success: #39b54a;
+  --warning: #ffb000;
+  --info: #2f51ae;
+  --danger: #eb0000;
+  --secondary: #f5f9fc;
+  --border-light: #cbd5e0;
+  --font-family: Inter, 'Times New Roman', Times, serif;
+
+  --header-background: #f7fafc;
+}
+
+$primary_color: var(--primary);
+$success_color: var(--success);
+$warning_color: var(--warning);
+$info_color: var(--info);
+$danger_color: var(--danger);
+$secondary_color: var(--secondary);
+
+$border-light_color: var(--border-light);
+$font-family: var(--font-family);
+
+@import '~bootstrap/scss/bootstrap';
+
+@import '~bootstrap-icons/font/bootstrap-icons.css';
+
+// Webpixels' CSS
+@import '@webpixels/css/base';
+@import '@webpixels/css/forms';
+@import '@webpixels/css/components';
+@import '@webpixels/css/utilities';
+
+html {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  font-family: $font-family;
+  font-size: 16px;
+}
+
+.bg-primary {
+  background-color: $primary_color !important;
+}
+
+.bg-success {
+  background-color: $success_color !important;
+}
+
+.text-success {
+  color: $success_color !important;
+}
+
+// .bg-success {
+//   background-color: $success_color !important;
+// }
+// .btn-primary {
+//   background-color: $primary_color !important;
+// }
+.btn-outline-primary {
+  color: $primary_color !important;
+  border-color: $primary_color !important;
+  &:hover {
+    background-color: $primary_color !important;
+    color: #fff !important;
+  }
+}
+
+.btn-outline-danger {
+  color: $danger_color !important;
+  border-color: $danger_color !important;
+  &:hover {
+    background-color: $danger_color !important;
+    color: #fff !important;
+  }
+  &:focus-visible {
+    background-color: $danger_color !important;
+    color: #fff !important;
+  }
+  &:active {
+    background-color: $danger_color !important;
+    color: #fff !important;
+  }
+}
+
+.form-check-input:checked {
+  background-color: $primary_color;
+  border-color: #022b68;
+}
+
+.text-primary {
+  color: $primary_color !important;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.main {
+  width: 450px;
+  padding: 0;
+  margin: 0;
+}
+
+.header {
+  background-color: var(--header-background);
+  padding: 12px 0;
+  width: 100%;
+  margin: 0 !important;
+}
+
+.content {
+  padding: 10px 0;
+}
+
+.signin-btn {
+  background-color: #ffffff !important;
+  color: $primary_color !important;
+  box-shadow: 0px 0px 1px rgba(12, 26, 75, 0.24),
+    0px 3px 8px -1px rgba(50, 50, 71, 0.05);
+  border-radius: 4px;
+  padding: 8px 12px;
+  // width: 90%;
+  white-space: nowrap;
+
+  font-style: normal;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 15px;
+
+  &:before {
+    content: url(../assets/SH\ Logo\ avatar\ 1.svg);
+    width: 24px;
+    float: left;
+    margin-right: 10px;
+    margin-top: -2px;
+  }
+}
+
+.btn-primary {
+  background-color: $primary_color;
+  color: white;
+
+  &:hover {
+    background-color: $primary_color;
+    color: white;
+  }
+
+  &:focus {
+    background-color: $primary_color;
+    color: white;
+  }
+
+  &:active {
+    background-color: $primary_color !important;
+    color: white;
+  }
+
+  &:focus-visible {
+    background-color: $primary_color !important;
+    border-color: #022b68;
+    color: white;
+  }
+
+  &:disabled {
+    background-color: #718096;
+    border: none;
+    color: white;
+  }
+}
+
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.signin-text {
+  padding: 0 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.heading-text {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.logo {
+  width: 91px;
+  height: 24px;
+}
+
+.custom-btn {
+  padding: 8px 12px;
+  width: 100%;
+}
+
+.row {
+  margin: 12px 0px;
+}
+
+.custom-form-label {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 22px;
+}
+
+.note-text {
+  font-size: 14px;
+}
+
+.progress {
+  height: 10px;
+}
+
+.progress-div {
+  display: grid;
+  align-items: center;
+}
+
+.progress-text {
+  font-size: 16px;
+}
+
+.success-icon {
+  font-size: 40px;
+}

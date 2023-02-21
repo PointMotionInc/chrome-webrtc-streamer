@@ -23,3 +23,17 @@ type DeviceInfo = {
     isPrimary: boolean;
   };
 };
+
+interface Message {
+  to: 'background' | 'content' | 'popup';
+  event: string;
+  data?: { [key: string]: any };
+}
+
+type Status =
+  | 'no-token'
+  | 'ready'
+  | 'recording'
+  | 'recording-complete'
+  | 'uploading'
+  | 'uploading-complete';
