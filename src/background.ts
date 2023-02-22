@@ -109,6 +109,7 @@ chrome.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
               data: {
                 streamId,
                 deviceInfo,
+                tabUrl: tab.url,
               },
             });
           }

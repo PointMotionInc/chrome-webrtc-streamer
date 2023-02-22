@@ -14,6 +14,16 @@ let status: Status = 'no-token';
 let recordingEndedAt: Date;
 let videoUploadObj: Upload;
 let configUploadObj: Upload;
+let gqlClient: GraphQLClient;
+
+const graphqlUrls: {
+  [key: string]: string;
+} = {
+  'patient.dev.pointmotioncontrol.com': 'https://api.dev.pointmotioncontrol.com/v1/graphql',
+  'patient.stage.pointmotioncontrol.com': 'https://api.stage.pointmotioncontrol.com/v1/graphql',
+  'patient.prod.pointmotioncontrol.com': 'https://api.prod.pointmotioncontrol.com/v1/graphql',
+  'app.pointmotion.us': 'https://api.prod.pointmotioncontrol.com/v1/graphql',
+}
 
 const darkModePreference = window.matchMedia('(prefers-color-scheme: dark)');
 if (darkModePreference.matches) {
@@ -44,17 +54,13 @@ const sendMessage = (
   }
 };
 
-// TODO: make URL change acc to the tab it runs on.
-const gqlClient = new GraphQLClient(
-  'https://api.dev.pointmotioncontrol.com/v1/graphql'
-);
-
 const accessToken = window.localStorage.getItem('accessToken');
 if (accessToken) {
   status = 'ready';
 }
 
 const port = chrome.runtime.connect({});
+
 port.onMessage.addListener(async (message: Message) => {
   // don't have to listen if the message is not for content-script
   if (message.to !== 'content') return;
@@ -64,7 +70,12 @@ port.onMessage.addListener(async (message: Message) => {
   }
 
   if (message.event === 'start-recording') {
-    const { streamId, deviceInfo } = message.data as any;
+    const accessToken = window.localStorage.getItem('accessToken');
+    const { streamId, deviceInfo, tabUrl } = message.data as any;
+    console.log('tabUrl::', tabUrl);
+    const url = new URL(tabUrl);
+    gqlClient = new GraphQLClient(graphqlUrls[url.host]);
+
     if (!streamId) return;
 
     if (deviceInfo) {

@@ -8,7 +8,10 @@
     {
       "matches": [
         "*://localhost/*",
-        "*://*.patient.dev.pointmotioncontrol.com/*"
+        "*://*.patient.dev.pointmotioncontrol.com/*",
+        "*://*.patient.stage.pointmotioncontrol.com/*",
+        "*://*.patient.prod.pointmotioncontrol.com/*",
+        "*://app.pointmotion.us/*"
       ],
       "js": ["content.js"],
       "all_frames": true,
@@ -34,7 +37,13 @@
   ],
   "host_permissions": ["http://*/*", "https://*/*"],
   "externally_connectable": {
-    "matches": ["*://*.patient.dev.pointmotioncontrol.com/*", "*://localhost/*"]
+    "matches": [
+      "*://*.patient.dev.pointmotioncontrol.com/*",
+      "*://*.patient.stage.pointmotioncontrol.com/*",
+      "*://*.patient.prod.pointmotioncontrol.com/*",
+      "*://app.pointmotion.us/*",
+      "*://localhost/*"
+    ]
   },
   "icons": {
     "16": "assets/dark/sh_16.png",
