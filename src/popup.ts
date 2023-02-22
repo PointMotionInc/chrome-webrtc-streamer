@@ -58,7 +58,7 @@ const content: { [key in Status]: string } = {
       </div>
       <hr class="mt-3">
       <div class="col-12 flex-center mb-1">
-        <button id='delete' class="btn btn-outline-danger custom-btn">Delete Recording</button>
+        <button id='delete' class="btn btn-outline-danger custom-btn">Don’t Upload</button>
       </div>`,
 
   uploading: `
