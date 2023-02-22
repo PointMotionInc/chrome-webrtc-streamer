@@ -11,6 +11,7 @@ let sysDeviceInfo: Partial<DeviceInfo> = {};
 let downloadLocally = false;
 
 let status: Status = 'no-token';
+let recordingStartedAt: Date;
 let recordingEndedAt: Date;
 let videoUploadObj: Upload;
 let configUploadObj: Upload;
@@ -70,6 +71,8 @@ port.onMessage.addListener(async (message: Message) => {
   }
 
   if (message.event === 'start-recording') {
+    recordingStartedAt = new Date();
+    console.log('recordingStartedAt::', recordingStartedAt);
     const accessToken = window.localStorage.getItem('accessToken');
     const { streamId, deviceInfo, tabUrl } = message.data as any;
     console.log('tabUrl::', tabUrl);
@@ -146,6 +149,8 @@ port.onMessage.addListener(async (message: Message) => {
   }
 
   if (message.event === 'stop-recording') {
+    recordingEndedAt = new Date();
+    console.log('recordingEndedAt::', recordingEndedAt);
     console.log('event::stop-recording::', message);
     if (mediaRecorder) {
       if (message.data) {
@@ -156,13 +161,12 @@ port.onMessage.addListener(async (message: Message) => {
       mediaRecorder.stream.getTracks().forEach((track) => {
         track.stop();
       });
-      recordingEndedAt = new Date();
     }
   }
 
   if (message.event === 'upload-recording') {
     if (blob) {
-      uploadFile(blob, recordingEndedAt);
+      uploadFile(blob);
     }
     status = 'uploading';
     sendMessage('popup', 'status', { status });
@@ -200,6 +204,8 @@ function createRecorder(stream: MediaStream, mimeType: string) {
 
   mediaRecorder.onstop = () => {
     console.log('stopping:mediaRecording::');
+    recordingEndedAt = new Date();
+    console.log('recordingEndedAt::', recordingEndedAt);
 
     blob = new Blob(recordedChunks, {
       type: mimeType,
@@ -223,17 +229,19 @@ function createRecorder(stream: MediaStream, mimeType: string) {
 async function insertUploadKeys(
   videoKey: string,
   configKey: string,
-  endedAt: Date
 ) {
-  const query = `mutation InsertUploadKeys($videoKey: String!, $configKey: String!, $endedAt: timestamptz!) {
-    insert_tester_videos_one(object: {videoKey: $videoKey, configKey: $configKey, endedAt: $endedAt}) {
+  const query = `mutation InsertUploadKeys($videoKey: String!, $configKey: String!, $endedAt: timestamptz!, $startedAt: timestamptz!) {
+    insert_tester_videos_one(object: {videoKey: $videoKey, configKey: $configKey, endedAt: $endedAt, startedAt: $startedAt}) {
       id
     }
   }`;
+  console.log('insertUploadKeys:recordingStartedAt::', recordingStartedAt);
+  console.log('insertUploadKeys:recordingEndedAt::', recordingEndedAt);
   await gqlClient.request(query, {
     videoKey,
     configKey,
-    endedAt: endedAt.toISOString(),
+    startedAt: recordingStartedAt.toISOString(),
+    endedAt: recordingEndedAt.toISOString(),
   });
 }
 
@@ -246,7 +254,7 @@ async function stopUploading() {
   }
 }
 
-async function uploadFile(blob: Blob, recordingEndedAt: Date) {
+async function uploadFile(blob: Blob) {
   try {
     const s3Client = new S3({
       credentials: { ...stsCreds },
@@ -299,7 +307,7 @@ async function uploadFile(blob: Blob, recordingEndedAt: Date) {
     });
 
     await videoUploadObj.done();
-    await insertUploadKeys(videoKey, configKey, recordingEndedAt);
+    await insertUploadKeys(videoKey, configKey);
 
     // removing blob when download is complete
     if (blob) {
