@@ -46,14 +46,20 @@ const content: { [key in Status]: string } = {
 
   'recording-complete': `
         <div class="col-12 mt-1 heading-text">
-          Your recording is complete.
-        </div>
-        <div class="col-12 flex-center mt-3">
-          <button id='upload' class="btn btn-primary custom-btn">Upload recording</button>
-        </div>
-        <div class="col-12 flex-center mt-2 mb-1">
-          <button id='delete' class="btn btn-outline-danger custom-btn">Delete Recording</button>
-        </div>`,
+        Your recording is complete.
+      </div>
+      <div class="col-12 flex-center mt-3">
+        <button id='upload' class="btn btn-primary custom-btn">Upload recording</button>
+      </div>
+      <div class="col-12 text-small mt-2" style="height: 3.5rem; line-height: 1.25em;">
+        By Clicking on “Upload Recording” you will share the video with Point Motion Inc and authorize them to use the
+        data for
+        research and development purposes.
+      </div>
+      <hr class="mt-3">
+      <div class="col-12 flex-center mb-1">
+        <button id='delete' class="btn btn-outline-danger custom-btn">Delete Recording</button>
+      </div>`,
 
   uploading: `
       <div class="col-12 mt-1 heading-text">
