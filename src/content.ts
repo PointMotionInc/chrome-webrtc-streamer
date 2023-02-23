@@ -284,6 +284,7 @@ async function uploadFile(blob: Blob) {
     videoUploadObj = new Upload({
       client: s3Client,
       params: {
+        ContentType: 'video/mp4',
         Bucket: s3Bucket,
         Key: videoKey,
         Body: blob,
