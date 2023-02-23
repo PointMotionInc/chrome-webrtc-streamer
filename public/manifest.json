@@ -27,7 +27,6 @@
   },
   "permissions": [
     "tabs",
-    "scripting",
     "downloads",
     "desktopCapture",
     "system.display",
