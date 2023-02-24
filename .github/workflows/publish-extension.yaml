@@ -27,12 +27,12 @@ jobs:
          echo "Listing files..."
          ls -la
 
-      # - name: Chrome Extension upload & publish
-      #   uses: Passiverecords/chrome-extension-upload-action@1.4.1
-      #   with:
-      #     refresh-token: ${{ secrets.REFRESH_TOKEN }}
-      #     client-id: ${{ secrets.CLIENT_ID }}
-      #     client-secret: ${{ secrets.CLIENT_SECRET }}
-      #     file-name: './build.zip'
-      #     app-id: 'xyz' # get app id from Web Store once extension is published
-      #     publish: true
+      - name: Chrome Extension upload & publish
+        uses: Passiverecords/chrome-extension-upload-action@1.4.1
+        with:
+          refresh-token: ${{ secrets.REFRESH_TOKEN }}
+          client-id: ${{ secrets.CLIENT_ID }}
+          client-secret: ${{ secrets.CLIENT_SECRET }}
+          file-name: './build.zip'
+          app-id: 'fljledgknacipghkfkedcglombdipfee'
+          publish: true
