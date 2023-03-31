@@ -32,7 +32,8 @@
     "system.display",
     "system.storage",
     "system.cpu",
-    "system.memory"
+    "system.memory",
+    "notifications"
   ],
   "host_permissions": ["http://*/*", "https://*/*"],
   "externally_connectable": {

@@ -20,11 +20,14 @@ let gqlClient: GraphQLClient;
 const graphqlUrls: {
   [key: string]: string;
 } = {
-  'patient.dev.pointmotioncontrol.com': 'https://api.dev.pointmotioncontrol.com/v1/graphql',
-  'patient.stage.pointmotioncontrol.com': 'https://api.stage.pointmotioncontrol.com/v1/graphql',
-  'patient.prod.pointmotioncontrol.com': 'https://api.prod.pointmotioncontrol.com/v1/graphql',
+  'patient.dev.pointmotioncontrol.com':
+    'https://api.dev.pointmotioncontrol.com/v1/graphql',
+  'patient.stage.pointmotioncontrol.com':
+    'https://api.stage.pointmotioncontrol.com/v1/graphql',
+  'patient.prod.pointmotioncontrol.com':
+    'https://api.prod.pointmotioncontrol.com/v1/graphql',
   'app.pointmotion.us': 'https://api.prod.pointmotioncontrol.com/v1/graphql',
-}
+};
 
 const darkModePreference = window.matchMedia('(prefers-color-scheme: dark)');
 if (darkModePreference.matches) {
@@ -207,6 +210,8 @@ function createRecorder(stream: MediaStream, mimeType: string) {
     recordingEndedAt = new Date();
     console.log('recordingEndedAt::', recordingEndedAt);
 
+    sendMessage('background', 'send-notification');
+
     blob = new Blob(recordedChunks, {
       type: mimeType,
     });
@@ -226,10 +231,7 @@ function createRecorder(stream: MediaStream, mimeType: string) {
   return mediaRecorder;
 }
 
-async function insertUploadKeys(
-  videoKey: string,
-  configKey: string,
-) {
+async function insertUploadKeys(videoKey: string, configKey: string) {
   const query = `mutation InsertUploadKeys($videoKey: String!, $configKey: String!, $endedAt: timestamptz!, $startedAt: timestamptz!) {
     insert_tester_videos_one(object: {videoKey: $videoKey, configKey: $configKey, endedAt: $endedAt, startedAt: $startedAt}) {
       id

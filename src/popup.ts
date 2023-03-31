@@ -12,7 +12,7 @@ const content: { [key in Status]: string } = {
           <button id='start' class="btn btn-primary custom-btn" disabled>Start Recording</button>
         </div>
         <div class="col-12 flex-center mt-2 mb-1">
-          <button class="btn btn-outline-primary custom-btn" disabled>View Previous Recordings</button>
+          <button class="btn btn-outline-primary custom-btn" disabled>View Latest Save</button>
         </div>`,
 
   ready: `
@@ -23,7 +23,7 @@ const content: { [key in Status]: string } = {
           <button id='start' class="btn btn-primary custom-btn">Start Recording</button>
         </div>
         <div class="col-12 flex-center mt-2 mb-1">
-          <button id='previous-recordings' class="btn btn-outline-primary custom-btn">View Previous Recordings</button>
+          <button id='previous-recordings' class="btn btn-outline-primary custom-btn">View Latest Save</button>
         </div>`,
 
   recording: `
@@ -98,7 +98,7 @@ const content: { [key in Status]: string } = {
         <button id='start' class="btn btn-primary custom-btn">Start Recording</button>
       </div>
       <div class="col-12 flex-center mt-2 mb-1">
-        <button id='previous-recordings' class="btn btn-outline-primary custom-btn">View Previous Recordings</button>
+        <button id='previous-recordings' class="btn btn-outline-primary custom-btn">View Latest Save</button>
       </div>`,
 };
 
