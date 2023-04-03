@@ -7,12 +7,6 @@ const content: { [key in Status]: string } = {
   'no-token': `
         <div class="col-12 mt-1 heading-text">
             Please sign in to Sound Health to start recording.
-        </div>
-        <div class="col-12 flex-center mt-3">
-          <button id='start' class="btn btn-primary custom-btn" disabled>Start Recording</button>
-        </div>
-        <div class="col-12 flex-center mt-2 mb-1">
-          <button class="btn btn-outline-primary custom-btn" disabled>View Latest Save</button>
         </div>`,
 
   ready: `

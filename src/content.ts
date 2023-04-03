@@ -155,6 +155,10 @@ port.onMessage.addListener(async (message: Message) => {
         });
       })
       .catch((err) => {
+        window.alert(
+          'Unable to start recording. Please check your browser settings. Error::' +
+            JSON.stringify(err)
+        );
         console.log('Unable To Get User Media::', err);
       });
   }
