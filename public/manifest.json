@@ -2,7 +2,7 @@
   "name": "Sound Health Video Recorder",
   "description": "Send your session video to Point Motion team directly.",
   "author": "Point Motion",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "manifest_version": 3,
   "content_scripts": [
     {
