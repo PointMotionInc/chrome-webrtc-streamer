@@ -58,10 +58,7 @@ const sendMessage = (
   }
 };
 
-const accessToken = window.localStorage.getItem('accessToken');
-if (accessToken) {
-  status = 'ready';
-}
+let accessToken: string | null;
 
 const port = chrome.runtime.connect({});
 
@@ -70,6 +67,17 @@ port.onMessage.addListener(async (message: Message) => {
   if (message.to !== 'content') return;
 
   if (message.event === 'status') {
+    accessToken = window.localStorage.getItem('accessToken');
+    if (!accessToken) {
+      status = 'no-token';
+    }
+
+    if (status === 'no-token') {
+      if (accessToken) {
+        status = 'ready';
+      }
+    }
+
     sendMessage('popup', 'status', { status });
   }
 
