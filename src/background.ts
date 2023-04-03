@@ -45,6 +45,19 @@ chrome.runtime.onConnect.addListener((port) => {
         return;
       }
 
+      if (message.event === 'send-notification') {
+        chrome.notifications.create(
+          'recording-stopped',
+          {
+            iconUrl: 'assets/dark/sh_16.png',
+            title: 'Recording Stopped',
+            message: 'Please click on the extension to upload it.',
+            type: 'basic',
+          },
+          () => {}
+        );
+      }
+
       if (message.event === 'download') {
         const date = new Date();
         const dateStr = `${date.toLocaleDateString('default', {
