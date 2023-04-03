@@ -155,7 +155,7 @@ port.onMessage.addListener(async (message: Message) => {
         });
       })
       .catch((err) => {
-        window.alert(JSON.stringify(err.message));
+        window.alert(err.message);
         console.log('Unable To Get User Media::', err);
       });
   }
